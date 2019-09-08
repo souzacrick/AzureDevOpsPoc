@@ -2,8 +2,6 @@
 using AzureDevOpsPOC.Model;
 using AzureDevOpsPOC.Repository;
 using System;
-using System.Net.Http;
-using System.Net.Http.Headers;
 
 namespace AzureDevOpsPOC.ConsoleService
 {
@@ -58,7 +56,7 @@ namespace AzureDevOpsPOC.ConsoleService
                     Console.WriteLine("Para seguir em frente com a integração tecle Enter.");
                     Console.ForegroundColor = ConsoleColor.White;
 
-                    switch (Console.ReadLine())
+                    switch (Console.ReadLine().ToUpper())
                     {
                         case "V":
                             Console.WriteLine($"URL do Azure DevOps: {azureServiceConfiguration.URL}");
@@ -91,26 +89,10 @@ namespace AzureDevOpsPOC.ConsoleService
 
                 Console.ForegroundColor = ConsoleColor.Blue;
                 Console.WriteLine("## Iniciando a Integração com o Azure DevOps ##");
-                //api
 
                 aPIHelper = new APIHelper(azureServiceConfiguration.URL, azureServiceConfiguration.AccessToken);
-                var a = aPIHelper.Get<dynamic>($"{azureServiceConfiguration.Organization}/{azureServiceConfiguration.Project}/_apis/wit/workitems/1?fields=System.Id,System.Title,System.WorkItemType,System.CreatedDate&api-version=5.1").GetAwaiter().GetResult();
-
-                //https://dev.azure.com/fabrikam/_apis/wit/workitems?ids=297,299,300&fields=System.Id,System.Title,System.WorkItemType,Microsoft.VSTS.Scheduling.RemainingWork&api-version=5.1
-
-                //using (HttpClient client = new HttpClient())
-                //{
-                //    client.DefaultRequestHeaders.Accept.Add(
-                //        new MediaTypeWithQualityHeaderValue("application/json"));
-
-                //    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(System.Text.ASCIIEncoding.ASCII.GetBytes($":{azureServiceConfiguration.AccessToken}")));
-                //    using (HttpResponseMessage response = client.GetAsync($"{azureServiceConfiguration.URL}/{azureServiceConfiguration.Project}/_apis/wit/workitems/1?fields=System.Id,System.Title,System.WorkItemType,System.CreatedDate&api-version=5.1").GetAwaiter().GetResult())
-                //    {
-                //        response.EnsureSuccessStatusCode();
-                //        string responseBody = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-                //        Console.WriteLine(responseBody);
-                //    }
-                //}
+                WorkItemDTO workItemDTO = 
+                    aPIHelper.Get<WorkItemDTO>($"{azureServiceConfiguration.Organization}/{azureServiceConfiguration.Project}/_apis/wit/workitems/1?fields=System.Id,System.Title,System.WorkItemType,System.CreatedDate&api-version=5.1").GetAwaiter().GetResult();
 
                 Console.ReadLine();
             }

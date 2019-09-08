@@ -11,6 +11,12 @@ namespace AzureDevOpsPOC.Helper
     {
         private readonly HttpClient _client = new HttpClient();
 
+        public APIHelper(string url)
+        {
+            _client.BaseAddress = new Uri(url);
+            _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        }
+
         public APIHelper(string url, string accessToken)
         {
             _client.BaseAddress = new Uri(url);
