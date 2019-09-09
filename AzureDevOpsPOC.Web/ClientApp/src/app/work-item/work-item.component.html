@@ -1,0 +1,24 @@
+<h1>Work Items do Azure DevOps</h1>
+
+<p>Itens cadastrados.</p>
+
+<p *ngIf="!workItems"><em>Carregando...</em></p>
+
+<table class='table table-striped' *ngIf="workItems">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Tipo</th>
+      <th>Título</th>
+      <th scope="col" sortable="name" (sort)="onSort($event)">Criado em</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let workItem of workItems">
+      <td>{{ workItem.id }}</td>
+      <td>{{ workItem.type }}</td>
+      <td>{{ workItem.title }}</td>
+      <td>{{ workItem.createdOn | date: 'dd/MM/yyyy'}}</td>
+    </tr>
+  </tbody>
+</table>

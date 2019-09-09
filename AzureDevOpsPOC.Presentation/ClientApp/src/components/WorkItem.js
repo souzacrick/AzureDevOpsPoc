@@ -1,5 +1,7 @@
 ﻿import React, { Component } from 'react';
 
+
+
 export class WorkItem extends Component {
     static displayName = WorkItem.name;
 
@@ -41,7 +43,7 @@ export class WorkItem extends Component {
 
     render() {
         let contents = this.state.loading
-            ? <p><em>Loading...</em></p>
+            ? <p><em>Carregando...</em></p>
             : WorkItem.renderWorkItemTable(this.state.workitems);
 
         return (
