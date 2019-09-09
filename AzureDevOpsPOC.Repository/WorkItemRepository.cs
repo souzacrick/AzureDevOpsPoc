@@ -1,4 +1,6 @@
 ﻿using AzureDevOpsPOC.Model;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace AzureDevOpsPOC.Repository
 {
@@ -15,6 +17,11 @@ namespace AzureDevOpsPOC.Repository
         {
             _dbContext.Add(workItem);
             _dbContext.SaveChanges();
+        }
+
+        public List<WorkItem> GetAll()
+        {
+            return _dbContext.WorkItem.ToList();
         }
     }
 }

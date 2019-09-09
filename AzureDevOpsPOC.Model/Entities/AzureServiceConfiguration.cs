@@ -4,13 +4,6 @@ namespace AzureDevOpsPOC.Model
 {
     public class AzureServiceConfiguration
     {
-        //public AzureServiceConfiguration(string organization, string accessToken, string project)
-        //{
-        //    Project = project;
-        //    AccessToken = accessToken;
-        //    URL = organization.Contains("https://dev.azure.com/") ? organization : $"https://dev.azure.com//{organization}";
-        //}
-
         public int ID { get; set; }
         public int? LastWorkItemID { get; set; }
 
@@ -18,8 +11,6 @@ namespace AzureDevOpsPOC.Model
         public string Organization { get; set; }
         public string AccessToken { get; set; }
         public string Project { get; set; }
-
-        //public DateTime? LastExecution { get; set; }
 
         public bool IsValid()
         {
