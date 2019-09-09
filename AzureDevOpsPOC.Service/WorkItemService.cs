@@ -19,5 +19,10 @@ namespace AzureDevOpsPOC.Service
         {
             return workItemRepository.GetAll();
         }
+
+        public List<WorkItem> FilterByType(string type)
+        {
+            return workItemRepository.FilterByType(type);
+        }
     }
 }

@@ -23,5 +23,10 @@ namespace AzureDevOpsPOC.Repository
         {
             return _dbContext.WorkItem.ToList();
         }
+
+        public List<WorkItem> FilterByType(string type)
+        {
+            return _dbContext.WorkItem.Where(x => x.Type.Contains(type)).ToList();
+        }
     }
 }

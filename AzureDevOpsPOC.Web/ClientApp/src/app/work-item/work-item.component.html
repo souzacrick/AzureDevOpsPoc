@@ -1,16 +1,21 @@
 <h1>Work Items do Azure DevOps</h1>
 
-<p>Itens cadastrados.</p>
-
 <p *ngIf="!workItems"><em>Carregando...</em></p>
 
-<table class='table table-striped' *ngIf="workItems">
+<form class="form-inline">
+  <h5>Filtros:</h5>
+  <div class="form-group mx-sm-3 mb-2">
+    <input type="text" class="form-control" placeholder="Tipo de Work Item" (keyup)="onFilter($event)" />
+  </div>
+</form>
+
+<table class='table table-striped'  *ngIf="workItems">
   <thead>
     <tr>
       <th>ID</th>
       <th>Tipo</th>
       <th>Título</th>
-      <th scope="col" sortable="name" (sort)="onSort($event)">Criado em</th>
+      <th (click)="orderBy()">Criado em <span style="cursor:pointer" class="badge badge-dark" title="Clique para ordernar">ߡ ߜ</span></th>
     </tr>
   </thead>
   <tbody>

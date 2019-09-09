@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\src\app\filter.ts" />
     <None Remove="ClientApp\src\app\work-item\work-item.component.ts" />
   </ItemGroup>
 

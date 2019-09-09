@@ -34,7 +34,7 @@ namespace AzureDevOpsPOC.ConsoleService
                         Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("Parâmetros de conexão com o Azure não encontrados, favor criá-los.");
                         Console.ForegroundColor = ConsoleColor.White;
-                        Console.WriteLine("Digite a URL do Azure DevOps:");
+                        Console.WriteLine("Digite a URL da API do Azure DevOps:");
                         azureServiceConfiguration.URL = Console.ReadLine();
                         Console.WriteLine("Digite a Organização:");
                         azureServiceConfiguration.Organization = Console.ReadLine();
@@ -62,7 +62,7 @@ namespace AzureDevOpsPOC.ConsoleService
                         case "V":
                             timer.Change(-1, -1);
                             timer.Dispose();
-                            Console.WriteLine($"URL do Azure DevOps: {azureServiceConfiguration.URL}");
+                            Console.WriteLine($"URL da API do Azure DevOps: {azureServiceConfiguration.URL}");
                             Console.WriteLine($"Organização: {azureServiceConfiguration.Organization}");
                             Console.WriteLine($"Token de Acesso: {azureServiceConfiguration.AccessToken}");
                             Console.WriteLine($"Nome do projeto: {azureServiceConfiguration.Project}");
@@ -72,8 +72,8 @@ namespace AzureDevOpsPOC.ConsoleService
                             {
                                 timer.Change(-1, -1);
                                 timer.Dispose();
-                                Console.WriteLine($"URL do Azure DevOps: {azureServiceConfiguration.URL}");
-                                Console.WriteLine("Digite a nova URL do Azure DevOps:");
+                                Console.WriteLine($"URL da API do Azure DevOps: {azureServiceConfiguration.URL}");
+                                Console.WriteLine("Digite a nova URL da API do Azure DevOps:");
                                 azureServiceConfiguration.URL = Console.ReadLine();
                                 Console.WriteLine($"Organização: {azureServiceConfiguration.Organization}");
                                 Console.WriteLine("Digite a nova Organização:");
