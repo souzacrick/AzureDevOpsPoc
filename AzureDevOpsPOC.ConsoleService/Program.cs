@@ -2,17 +2,17 @@
 using AzureDevOpsPOC.Model;
 using AzureDevOpsPOC.Repository;
 using System;
+using System.Threading;
 
 namespace AzureDevOpsPOC.ConsoleService
 {
     class Program
     {
+        private static AzureServiceConfiguration azureServiceConfiguration = null;
+        private static AzureServiceConfigurationRepository azureServiceConfigurationRepository = null;
+
         static void Main(string[] args)
         {
-            APIHelper aPIHelper = null;
-            AzureServiceConfigurationRepository _repository = null;
-            AzureServiceConfiguration azureServiceConfiguration = null;
-
             try
             {
                 Console.ForegroundColor = ConsoleColor.Blue;
@@ -22,8 +22,8 @@ namespace AzureDevOpsPOC.ConsoleService
                 Console.WriteLine();
                 Console.WriteLine();
 
-                _repository = new AzureServiceConfigurationRepository(new AzureDevOpsDbContextFactory().CreateDbContext());
-                azureServiceConfiguration = _repository.Get();
+                azureServiceConfigurationRepository = new AzureServiceConfigurationRepository(new AzureDevOpsDbContextFactory().CreateDbContext());
+                azureServiceConfiguration = azureServiceConfigurationRepository.Get();
 
                 if (azureServiceConfiguration == null)
                 {
@@ -45,7 +45,7 @@ namespace AzureDevOpsPOC.ConsoleService
 
                     } while (!azureServiceConfiguration.IsValid());
 
-                    _repository.Add(azureServiceConfiguration);
+                    azureServiceConfigurationRepository.Add(azureServiceConfiguration);
                 }
                 else
                 {
@@ -53,12 +53,15 @@ namespace AzureDevOpsPOC.ConsoleService
                     Console.WriteLine("Parâmetros de conexão com o Azure foram encontrados.");
                     Console.WriteLine("Para visualizar digite V. ");
                     Console.WriteLine("Para visualizar e atualizar digite A.");
-                    Console.WriteLine("Para seguir em frente com a integração tecle Enter.");
+                    Console.WriteLine("Para seguir em frente com a integração tecle Enter ou aguarde 2 segundos.");
+                    Timer timer = new Timer(TimerCallback, null, 2000, -1);
                     Console.ForegroundColor = ConsoleColor.White;
 
                     switch (Console.ReadLine().ToUpper())
                     {
                         case "V":
+                            timer.Change(-1, -1);
+                            timer.Dispose();
                             Console.WriteLine($"URL do Azure DevOps: {azureServiceConfiguration.URL}");
                             Console.WriteLine($"Organização: {azureServiceConfiguration.Organization}");
                             Console.WriteLine($"Token de Acesso: {azureServiceConfiguration.AccessToken}");
@@ -67,6 +70,8 @@ namespace AzureDevOpsPOC.ConsoleService
                         case "A":
                             do
                             {
+                                timer.Change(-1, -1);
+                                timer.Dispose();
                                 Console.WriteLine($"URL do Azure DevOps: {azureServiceConfiguration.URL}");
                                 Console.WriteLine("Digite a nova URL do Azure DevOps:");
                                 azureServiceConfiguration.URL = Console.ReadLine();
@@ -80,19 +85,16 @@ namespace AzureDevOpsPOC.ConsoleService
                                 Console.WriteLine("Digite o novo Nome de projeto:");
                                 azureServiceConfiguration.Project = Console.ReadLine();
                             } while (!azureServiceConfiguration.IsValid());
-                            _repository.Update(azureServiceConfiguration);
+                            azureServiceConfigurationRepository.Update(azureServiceConfiguration);
                             break;
                         default:
+                            timer.Change(-1, -1);
+                            timer.Dispose();
                             break;
                     }
                 }
 
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.WriteLine("## Iniciando a Integração com o Azure DevOps ##");
-
-                aPIHelper = new APIHelper(azureServiceConfiguration.URL, azureServiceConfiguration.AccessToken);
-                WorkItemDTO workItemDTO = 
-                    aPIHelper.Get<WorkItemDTO>($"{azureServiceConfiguration.Organization}/{azureServiceConfiguration.Project}/_apis/wit/workitems/1?fields=System.Id,System.Title,System.WorkItemType,System.CreatedDate&api-version=5.1").GetAwaiter().GetResult();
+                StartIntegration();
 
                 Console.ReadLine();
             }
@@ -103,5 +105,54 @@ namespace AzureDevOpsPOC.ConsoleService
                 Console.ReadLine();
             }
         }
+
+        private static void TimerCallback(Object o)
+        {
+            StartIntegration();
+        }
+
+        private static void StartIntegration()
+        {
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.WriteLine("## Iniciando a Integração com o Azure DevOps ##");
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.Green;
+
+            azureServiceConfiguration.LastWorkItemID = azureServiceConfiguration?.LastWorkItemID + 1 ?? 60000;
+            APIHelper aPIHelper = new APIHelper(azureServiceConfiguration.URL, azureServiceConfiguration.AccessToken);
+            GetWorkItem(aPIHelper, azureServiceConfiguration);
+            GC.Collect();
+            Environment.Exit(0);
+        }
+
+        private static void GetWorkItem(APIHelper aPIHelper, AzureServiceConfiguration azureServiceConfiguration)
+        {
+            Console.WriteLine($"Obtendo os dados do Work Item de ID {azureServiceConfiguration.LastWorkItemID}");
+            WorkItemDTO workItemDTO = aPIHelper.Get<WorkItemDTO>($"{azureServiceConfiguration.Organization}/{azureServiceConfiguration.Project}/_apis/wit/workitems/{azureServiceConfiguration.LastWorkItemID}?fields=System.Id,System.Title,System.WorkItemType,System.CreatedDate&api-version=5.1").GetAwaiter().GetResult();
+
+            if(workItemDTO != null)
+            {
+                Console.WriteLine($"Dados do Work Item de ID {azureServiceConfiguration.LastWorkItemID} foram encontrados e serão adicionados ao banco de dados");
+
+                WorkItemRepository workItemRepository = new WorkItemRepository(new AzureDevOpsDbContextFactory().CreateDbContext());
+                workItemRepository.Add(new WorkItem {
+                    ID = workItemDTO.fields.SystemId,
+                    Title = workItemDTO.fields.SystemTitle,
+                    Type = workItemDTO.fields.SystemWorkItemType,
+                    CreatedOn = workItemDTO.fields.SystemCreatedDate
+                });
+
+                azureServiceConfiguration.LastWorkItemID++;
+                GetWorkItem(aPIHelper, azureServiceConfiguration);
+            }
+            else
+            {
+                Console.WriteLine($"Dados do Work Item de ID {azureServiceConfiguration.LastWorkItemID} não foram encontrados a rotina será encerrada");
+                azureServiceConfiguration.LastWorkItemID--;
+                azureServiceConfigurationRepository.Update(azureServiceConfiguration);
+            }
+        }
+
     }
 }

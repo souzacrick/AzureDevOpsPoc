@@ -12,7 +12,7 @@ namespace AzureDevOpsPOC.Model
         //}
 
         public int ID { get; set; }
-        public int LastWorkItemID { get; set; }
+        public int? LastWorkItemID { get; set; }
 
         public string URL { get; set; }
         public string Organization { get; set; }
